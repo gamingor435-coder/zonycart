@@ -4,8 +4,7 @@
 import { useState } from "react";
 import { client } from "@/sanity/lib/client";
 import { useCart } from "@/context/CartContext"; 
-const cartData = useCart() as any;
-const cart = cartData?.cartItems || [];
+const cartData = useCart() as any; // 'as any' lagana zaroori haiconst cart = cartData?.cartItems || [];
   
   // Cart items ko safety ke saath pick kiya
   const cart = cartData?.cartItems || cartData?.cart || [];
