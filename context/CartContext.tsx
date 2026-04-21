@@ -16,6 +16,7 @@ type User = {
 } | null;
 
 type CartContextType = {
+  cart: Product[]; // YE LINE MAIN ADD KI HAI - ERROR FIX HONE KE LIYE
   cartItems: Product[];
   wishlistItems: Product[];
   user: User;
@@ -27,6 +28,7 @@ type CartContextType = {
   logout: () => void;
   cartCount: number;
   wishlistCount: number;
+  clearCart?: () => void; // YE BHI ADD KIYA CLEARCART KE LIYE
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -64,6 +66,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   const removeFromCart = (id: string) => setCartItems((prev) => prev.filter((item) => item._id !== id));
   
+  // YE FUNCTION ADD KIYA CLEARCART KE LIYE
+  const clearCart = () => {
+    setCartItems([]);
+  };
+  
   const addToWishlist = (product: Product) => {
     setWishlistItems((prev) => {
       if (prev.find((item) => item._id === product._id)) return prev;
@@ -78,8 +85,17 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <CartContext.Provider value={{ 
-      cartItems, wishlistItems, user, addToCart, removeFromCart, 
-      addToWishlist, removeFromWishlist, login, logout,
+      cart: cartItems, // YE LINE ADD KI HAI
+      cartItems, 
+      wishlistItems, 
+      user, 
+      addToCart, 
+      removeFromCart, 
+      addToWishlist, 
+      removeFromWishlist, 
+      login, 
+      logout,
+      clearCart, // YE BHI ADD KIYA
       cartCount: cartItems.reduce((total, item) => total + (item.quantity || 1), 0),
       wishlistCount: wishlistItems.length
     }}>
