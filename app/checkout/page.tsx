@@ -4,9 +4,10 @@
 import { useState } from "react";
 import { client } from "@/sanity/lib/client";
 import { useCart } from "@/context/CartContext"; 
-const cartData = useCart() as any; // 'as any' lagana zaroori haiconst cart = cartData?.cartItems || [];
-  
-  // Cart items ko safety ke saath pick kiya
+// @ts-ignore
+const cartData: any = useCart();
+// @ts-ignore
+const cart = cartData?.cartItems || cartData?.cart || [];
   const cart = cartData?.cartItems || cartData?.cart || [];
   
   // Amount Calculation (Rs. focus)
