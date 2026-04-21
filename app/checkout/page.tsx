@@ -1,17 +1,16 @@
 "use client";
 
-// @ts-nocheck
 import { useState } from "react";
 import { client } from "@/sanity/lib/client";
 import { useCart } from "@/context/CartContext";
 
 export default function CheckoutPage() {
-  // TypeScript error se bachne ke liye 'any' cast kiya
-  const cartData = useCart() as any;
-  
-  // Cart items ko safety ke saath pick kiya
-  const cart = cartData?.cartItems || cartData?.cart || [];
-  
+
+  const cartData: any = useCart();
+
+  // FIX: sirf ek hi cart define karo
+  const cart = cartData?.cartItems || [];
+
   // Amount Calculation
   const calculatedTotal = cart.reduce((acc: number, item: any) => {
     const price = Number(item.price) || 0;
@@ -19,9 +18,9 @@ export default function CheckoutPage() {
     return acc + (price * quantity);
   }, 0);
 
-  const totalPrice = cartData?.totalPrice || cartData?.cartTotal || calculatedTotal;
+  const totalPrice = cartData?.totalPrice || calculatedTotal;
   const clearCart = cartData?.clearCart || (() => {});
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
@@ -42,7 +41,7 @@ export default function CheckoutPage() {
       alert("Aapka cart khali hai!");
       return;
     }
-    
+
     setIsSubmitting(true);
 
     try {
@@ -55,7 +54,7 @@ export default function CheckoutPage() {
         phone: formData.phone,
         cartItems: cart.map((item: any, index: number) => ({
           _type: 'object',
-          _key: `item-${index}-${new Date().getTime()}`, 
+          _key: `item-${index}-${new Date().getTime()}`,
           productName: item.name || item.title || "Product",
           quantity: Number(item.quantity) || 1,
           price: Number(item.price) || 0,
@@ -66,60 +65,38 @@ export default function CheckoutPage() {
       };
 
       await client.create(orderObject);
-      
+
       alert(`Mubarak ho! Order mil gaya. Total Bill: Rs. ${totalPrice}`);
-      
-      if (clearCart) clearCart();
-      window.location.href = "/"; 
+
+      clearCart();
+
+      window.location.href = "/";
 
     } catch (error: any) {
       console.error("Sanity Error:", error);
-      alert("Error: " + (error.message || "Order complete nahi ho saka"));
+      alert("Error: " + (error.message || "Order fail ho gaya"));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: '50px auto', padding: '30px', border: '1px solid #ddd', borderRadius: '12px', fontFamily: 'Arial, sans-serif', backgroundColor: '#fff' }}>
-      <h2 style={{ textAlign: 'center', color: '#333', marginBottom: '20px' }}>Checkout (Zony Cart)</h2>
-      
-      <form onSubmit={handlePlaceOrder} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        <input type="text" name="fullName" placeholder="Pura Naam" onChange={handleChange} required style={inputStyle} />
-        <input type="email" name="email" placeholder="Email Address" onChange={handleChange} required style={inputStyle} />
-        <input type="text" name="address" placeholder="Ghar ka Pata" onChange={handleChange} required style={inputStyle} />
-        <input type="text" name="city" placeholder="Shehar ka Naam" onChange={handleChange} required style={inputStyle} />
-        <input type="text" name="phone" placeholder="Mobile Number" onChange={handleChange} required style={inputStyle} />
+    <div>
+      <h2>Checkout</h2>
 
-        <div style={{ background: '#f9f9f9', padding: '20px', borderRadius: '8px', border: '1px solid #eee', marginTop: '10px' }}>
-          <p style={{ margin: '5px 0', fontSize: '14px', color: '#666' }}><strong>Kul Items:</strong> {cart.length}</p>
-          <p style={{ fontSize: '22px', color: '#d32f2f', fontWeight: 'bold', margin: '0' }}>
-            Total Bill: Rs. {Number(totalPrice).toLocaleString()}
-          </p>
-        </div>
+      <form onSubmit={handlePlaceOrder}>
+        <input name="fullName" placeholder="Name" onChange={handleChange} required />
+        <input name="email" placeholder="Email" onChange={handleChange} required />
+        <input name="address" placeholder="Address" onChange={handleChange} required />
+        <input name="city" placeholder="City" onChange={handleChange} required />
+        <input name="phone" placeholder="Phone" onChange={handleChange} required />
 
-        <button 
-          type="submit" 
-          disabled={isSubmitting}
-          style={{ 
-            backgroundColor: isSubmitting ? '#999' : '#111', 
-            color: '#fff', padding: '15px', border: 'none', 
-            borderRadius: '6px', cursor: isSubmitting ? 'not-allowed' : 'pointer', 
-            fontWeight: 'bold', fontSize: '16px', marginTop: '10px',
-            transition: '0.3s'
-          }}
-        >
-          {isSubmitting ? "Order Bheja Ja Raha Hai..." : "Confirm Order (Cash on Delivery)"}
+        <p>Total: Rs. {totalPrice}</p>
+
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Processing..." : "Place Order"}
         </button>
       </form>
     </div>
   );
 }
-
-const inputStyle = {
-  padding: '12px',
-  borderRadius: '6px',
-  border: '1px solid #ccc',
-  fontSize: '16px',
-  outline: 'none'
-};
