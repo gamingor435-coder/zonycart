@@ -1,16 +1,18 @@
 "use client";
-// @ts-nocheck
 
+// @ts-nocheck
 import { useState } from "react";
 import { client } from "@/sanity/lib/client";
-import { useCart } from "@/context/CartContext"; 
-// @ts-ignore
-const cartData: any = useCart();
-// @ts-ignore
-const cart = cartData?.cartItems || cartData?.cart || [];
+import { useCart } from "@/context/CartContext";
+
+export default function CheckoutPage() {
+  // TypeScript error se bachne ke liye 'any' cast kiya
+  const cartData = useCart() as any;
+  
+  // Cart items ko safety ke saath pick kiya
   const cart = cartData?.cartItems || cartData?.cart || [];
   
-  // Amount Calculation (Rs. focus)
+  // Amount Calculation
   const calculatedTotal = cart.reduce((acc: number, item: any) => {
     const price = Number(item.price) || 0;
     const quantity = Number(item.quantity) || 1;
@@ -63,20 +65,16 @@ const cart = cartData?.cartItems || cartData?.cart || [];
         orderDate: new Date().toISOString(),
       };
 
-      // Sanity mein order create karna
       await client.create(orderObject);
       
       alert(`Mubarak ho! Order mil gaya. Total Bill: Rs. ${totalPrice}`);
       
-      // Cart khali karna
       if (clearCart) clearCart();
-      
-      // Home page par wapis bhejna
       window.location.href = "/"; 
 
     } catch (error: any) {
       console.error("Sanity Error:", error);
-      alert("Sanity Error: " + (error.message || "Order complete nahi ho saka"));
+      alert("Error: " + (error.message || "Order complete nahi ho saka"));
     } finally {
       setIsSubmitting(false);
     }
@@ -94,7 +92,7 @@ const cart = cartData?.cartItems || cartData?.cart || [];
         <input type="text" name="phone" placeholder="Mobile Number" onChange={handleChange} required style={inputStyle} />
 
         <div style={{ background: '#f9f9f9', padding: '20px', borderRadius: '8px', border: '1px solid #eee', marginTop: '10px' }}>
-          <p style={{ margin: '5px 0', fontSize: '14px', color: '#666' }}><b>Kul Items:</b> {cart.length}</p>
+          <p style={{ margin: '5px 0', fontSize: '14px', color: '#666' }}><strong>Kul Items:</strong> {cart.length}</p>
           <p style={{ fontSize: '22px', color: '#d32f2f', fontWeight: 'bold', margin: '0' }}>
             Total Bill: Rs. {Number(totalPrice).toLocaleString()}
           </p>
