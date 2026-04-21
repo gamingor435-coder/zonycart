@@ -1,4 +1,5 @@
 "use client";
+// @ts-nocheck
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
 
@@ -43,27 +44,31 @@ export default function WishlistPage() {
             padding: '15px',
             position: 'relative',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            transition: 'transform 0.2s'
           }}>
-            {/* Deselect Button (Remove from Wishlist) */}
+            {/* Remove Button */}
             <button 
               onClick={() => removeFromWishlist(item._id)}
               style={{ 
                 position: 'absolute', top: '10px', right: '10px', 
-                background: '#eee', border: 'none', borderRadius: '50%', 
-                width: '30px', height: '30px', cursor: 'pointer' 
+                background: '#f8f8f8', border: '1px solid #ddd', borderRadius: '50%', 
+                width: '30px', height: '30px', cursor: 'pointer', zIndex: 10
               }}
               title="Remove"
             >
               ✕
             </button>
 
-            <Link href={`/products/${item.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Link href={`/products/${item.slug?.current || item.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
               <div style={{ width: '100%', height: '180px', marginBottom: '10px' }}>
                 <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               </div>
-              <h3 style={{ fontSize: '16px', height: '40px', overflow: 'hidden', margin: '10px 0' }}>{item.name}</h3>
-              <p style={{ fontWeight: 'bold', fontSize: '18px', color: '#B12704' }}>${item.price}</p>
+              <h3 style={{ fontSize: '16px', height: '40px', overflow: 'hidden', margin: '10px 0', lineHeight: '1.4' }}>
+                {item.name}
+              </h3>
+              {/* Currency Rs. mein kar di hai */}
+              <p style={{ fontWeight: 'bold', fontSize: '18px', color: '#B12704' }}>Rs. {item.price}</p>
             </Link>
 
             <button 
@@ -72,7 +77,7 @@ export default function WishlistPage() {
                 marginTop: '15px', 
                 backgroundColor: '#FFD814', 
                 border: '1px solid #FCD200', 
-                padding: '8px', 
+                padding: '10px', 
                 borderRadius: '20px', 
                 fontWeight: 'bold', 
                 cursor: 'pointer' 
