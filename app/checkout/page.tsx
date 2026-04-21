@@ -6,8 +6,7 @@ import { client } from "@/sanity/lib/client";
 import { useCart } from "@/context/CartContext"; 
 
 export default function CheckoutPage() {
-  // TypeScript error se bachne ke liye 'any' cast kiya
-  const cartData = useCart() as any;
+const cart = (cartData as any)?.cartItems || (cartData as any)?.cart || [];  const cartData = useCart() as any;
   
   // Cart items ko safety ke saath pick kiya
   const cart = cartData?.cartItems || cartData?.cart || [];
